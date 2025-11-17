@@ -1,16 +1,3 @@
-- Edite o DatabaseSeeder.php: Para deixar predefinico o que criar e popular.
-
-- Rode o Seeder (O Comando Mágico): No seu terminal, rode este comando.
-Ele vai apagar seu banco e recriá-lo (com migrate) e depois popular (com seed) tudo de uma vez:
- ---- php artisan migrate:fresh --seed
-
-Teste:
-> php artisan tinker
-> use App\Models\Livro;
-> Livro::all()->toArray();
-
-
-
 ==================================================
 RESUMO DO PROJETO LARAVEL (PARTE 3 - FRAMEWORK)
 ==================================================
