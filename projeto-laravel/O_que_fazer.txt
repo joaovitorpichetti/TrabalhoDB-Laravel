@@ -1,0 +1,136 @@
+- Edite o DatabaseSeeder.php: Para deixar predefinico o que criar e popular.
+
+- Rode o Seeder (O Comando Mágico): No seu terminal, rode este comando.
+Ele vai apagar seu banco e recriá-lo (com migrate) e depois popular (com seed) tudo de uma vez:
+ ---- php artisan migrate:fresh --seed
+
+Teste:
+> php artisan tinker
+> use App\Models\Livro;
+> Livro::all()->toArray();
+
+
+
+==================================================
+RESUMO DO PROJETO LARAVEL (PARTE 3 - FRAMEWORK)
+==================================================
+
+---
+PASSO 1: CONFIGURAR O PROJETO E O BANCO
+---
+
+1.  **Criação do Projeto:** Usamos o Composer para criar um novo projeto Laravel:
+    `composer create-project laravel/laravel projeto-laravel`
+
+2.  **Configuração do Banco:** Editamos o arquivo `.env` para que o Laravel usasse o driver `sqlite`.
+
+3.  **Criação do Arquivo de Banco:** Criamos um arquivo VAZIO chamado `database.sqlite` dentro da pasta `database/`. O Laravel irá gerenciar este arquivo.
+    (No `.env`, a linha `DB_DATABASE` foi atualizada para o caminho absoluto deste novo arquivo).
+
+---
+PASSO 2: CRIAR OS "MOTORES" (Models)
+---
+
+Os Models são as classes PHP que "conversam" com as nossas tabelas. Eles contêm a "mágica" do Eloquent (o ORM do Laravel).
+
+1.  **Geração dos Models:**
+    `php artisan make:model Editora`
+    `php artisan make:model Livro`
+
+2.  **Edição dos Models:** Editamos os arquivos em `app/Models/` para definir as **relações**:
+    * Em `Editora.php`, dissemos que "Uma Editora tem muitos Livros":
+        `public function livros() { return $this->hasMany(Livro::class); }`
+    * Em `Livro.php`, dissemos que "Um Livro pertence a uma Editora":
+        `public function editora() { return $this->belongsTo(Editora::class); }`
+    * Também adicionamos as propriedades `$fillable` em ambos para permitir a criação em massa.
+
+---
+PASSO 3: CRIAR A ESTRUTURA DO BANCO (Migrations)
+---
+
+Em vez de escrever `CREATE TABLE...` manualmente em um arquivo .sql, usamos as **Migrations** do Laravel.
+
+1.  **Geração dos Arquivos:** Rodamos os comandos para o Laravel criar os "planos" das nossas tabelas:
+    `php artisan make:migration create_editoras_table`
+    `php artisan make:migration create_livros_table`
+
+2.  **Edição das Migrations:** Editamos os arquivos criados na pasta `database/migrations/`:
+    * No `create_editoras_table`, definimos as colunas no método `up()`:
+        `$table->id();`
+        `$table->string('nome');`
+        `$table->string('cnpj')->unique();`
+        `$table->timestamps();`
+    * No `create_livros_table`, fizemos o mesmo e definimos a **chave estrangeira**:
+        `$table->id();`
+        `$table->string('titulo');`
+        `$table->integer('ano');`
+        `$table->string('autor_texto')->nullable();`
+        `$table->foreignId('editora_id')->constrained('editoras');`
+        `$table->timestamps();`
+
+3.  **Execução das Migrations:** Rodamos o comando para o Laravel ler nossos "planos" e construir as tabelas:
+    `php artisan migrate`
+
+    **Resultado:** O Laravel executou o SQL automaticamente e criou as tabelas `editoras` e `livros` no arquivo `database.sqlite`.
+
+
+---
+PASSO 4: POPULAR O BANCO (Seeder)
+---
+
+Em vez de escrever `INSERT INTO...` manualmente, usamos um **Seeder** para popular o banco de forma automática.
+
+1.  **Edição do Seeder:** Abrimos o arquivo `database/seeders/DatabaseSeeder.php`.
+2.  **Código do Seeder:** No método `run()`, escrevemos o código Eloquent para criar os dados de exemplo:
+    `$editora1 = Editora::create(['nome' => 'Editora Fantástica', ...]);`
+    `$editora2 = Editora::create(['nome' => 'Editora Saber', ...]);`
+    `Livro::create(['titulo' => 'A Lenda do Dragão', 'editora_id' => $editora1->id, ...]);`
+    `Livro::create(['titulo' => 'A História do Mundo', 'editora_id' => $editora2->id, ...]);`
+
+3.  **Execução (Tudo de uma vez):** Rodamos o comando para apagar, recriar (Migrations) e popular (Seeder) o banco de dados:
+    `php artisan migrate:fresh --seed`
+
+
+---
+PASSO 5: DEMONSTRAÇÃO DO CRUD (Tinker)
+---
+
+Esta é a demonstração final.
+
+1.  **Abrir o Tinker:**
+    `php artisan tinker`
+
+2.  **Importar os Models:**
+    `use App\Models\Livro;`
+    `use App\Models\Editora;`
+
+3.  **Demonstração do CRUD (Sem escrever SQL):**
+
+    * **READ (Listar todos):**
+        `Livro::all()->toArray();`
+        (Substitui `SELECT * FROM livros ... while($row = $stmt->fetch...)`)
+
+    * **READ (Relação 1:N - A Mágica do JOIN):**
+        `$livro = Livro::find(1);`
+        `echo $livro->editora->nome;`
+        (Substitui o `LEFT JOIN` manual)
+
+    * **READ (Relação N:1 - A Mágica da Sub-query):**
+        `$editora = Editora::find(1);`
+        `$editora->livros->toArray();`
+        (Substitui a sub-query `SELECT * FROM livros WHERE editora_id = ?` manual)
+
+    * **CREATE:**
+        `$novoLivro = Livro::create(['titulo' => 'Livro Novo', 'ano' => 2025, ...]);`
+        (Substitui `INSERT INTO ...`)
+
+    * **UPDATE:**
+        `$livro = Livro::find(1);`
+        `$livro->titulo = "Novo Título";`
+        `$livro->save();`
+        (Substitui `UPDATE ... SET ... WHERE ...`)
+
+    * **DELETE:**
+        `$livro = Livro::find(1);`
+        `$livro->delete();`
+        (Substitui `DELETE FROM ...`)

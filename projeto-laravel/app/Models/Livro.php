@@ -16,7 +16,7 @@ class Livro extends Model
     protected $fillable = ['titulo', 'ano', 'autor_texto', 'editora_id'];
 
     /**
-     * PONTO DE "MÁGICA" 4: Relação Inversa
+     * Relação Inversa
      * Definimos que este Livro PERTENCE A UMA Editora.
      */
     public function editora()
