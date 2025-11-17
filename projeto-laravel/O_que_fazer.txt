@@ -121,3 +121,41 @@ Esta é a demonstração final.
         `$livro = Livro::find(1);`
         `$livro->delete();`
         (Substitui `DELETE FROM ...`)
+
+---
+PASSO 6 (PLUS): CRUD AUTOMÁTICO NO NAVEGADOR (Filament)
+---
+
+Instalamos um Painel de Admin (Filament) que cria a interface web do CRUD automaticamente.
+
+1.  **Instalação do Pacote:**
+    `composer require filament/filament -W`
+    (Nota: Usamos `-W` e sem versão específica para o Composer buscar a versão mais nova e segura, o que resolveu os erros de `intl` e de segurança.)
+
+2.  **Configuração do Painel:**
+    `php artisan filament:install --panels`
+    * -> Pergunta: `What is the panel's ID? [admin]` -> Resposta: Apertar **Enter** (para aceitar 'admin')
+    * -> Pergunta: `Would you like to show some love...? [yes]` -> Resposta: Digitar `no` e apertar **Enter**
+
+3.  **Geração dos "Resources" (As páginas do CRUD):**
+    `php artisan make:filament-resource Editora --generate`
+    * -> Pergunta: `What is the title attribute for this model?` -> Resposta: Digitar `nome` e apertar **Enter**
+    * -> Pergunta: `Would you like to generate a read-only view page...? [no]` -> Resposta: Apertar **Enter**
+
+    `php artisan make:filament-resource Livro --generate`
+    * -> Pergunta: `What is the title attribute for this model?` -> Resposta: Digitar `titulo` e apertar **Enter**
+    * -> Pergunta: `Would you like to generate a read-only view page...? [no]` -> Resposta: Apertar **Enter**
+
+4.  **Criação do Usuário Admin:**
+    `php artisan make:filament-user`
+    * -> Pergunta: `Name:` -> Resposta: `Admin`
+    * -> Pergunta: `Email:` -> Resposta: `admin@admin.com`
+    * -> Pergunta: `Password:` -> Resposta: `password`
+
+5.  **Execução e Visualização:**
+    `php artisan serve`
+    * -> Abrir no navegador: `http://localhost:8000/admin`
+    * -> Fazer login com o usuário criado.
+
+**Resultado: Um painel de admin 100% funcional, com CRUD completo para Livros e Editoras, criado em minutos.**
+
